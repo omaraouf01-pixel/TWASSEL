@@ -1,0 +1,133 @@
+"use client";
+import { useState } from "react";
+import { motion } from "framer-motion";
+// تم استيراد جميع الأيقونات هنا لتجنب أي خطأ
+import { FiShare2, FiUploadCloud, FiUser, FiMail, FiLock } from "react-icons/fi";
+
+export default function AuthPage() {
+  const [isLogin, setIsLogin] = useState(true);
+
+  return (
+    <main className="min-h-screen flex items-center justify-center bg-slate-50 p-4 font-sans">
+      <div className="relative w-full max-w-[900px] h-[600px] bg-white rounded-[40px] shadow-2xl overflow-hidden flex">
+        
+        {/* ================= الطبقة المتحركة (Overlay) ================= */}
+        <motion.div
+          animate={{ x: isLogin ? "100%" : "0%" }}
+          transition={{ type: "spring", stiffness: 45, damping: 20, mass: 1.2 }}
+          className="absolute top-0 left-0 w-1/2 h-full bg-indigo-500 z-50 flex flex-col items-center justify-center text-white p-12 text-center"
+        >
+          <div className="flex items-center gap-3 mb-6">
+            <FiShare2 size={30} />
+            <h1 className="text-2xl font-bold tracking-widest">Twassel</h1>
+          </div>
+          
+          {/* نصوص انسيابية (Fade in effect) */}
+          <motion.h2 
+            key={isLogin ? "hello" : "welcome"} 
+            initial={{ opacity: 0, x: -20 }} 
+            animate={{ opacity: 1, x: 0 }}   
+            transition={{ duration: 0.5 }}   
+            className="text-3xl font-bold mb-4"
+          >
+            {isLogin ? "Hello, Student!" : "Welcome Back!"}
+          </motion.h2>
+          
+          <motion.p 
+            key={isLogin ? "journey" : "loop"}
+            initial={{ opacity: 0 }}            
+            animate={{ opacity: 0.8 }}          
+            transition={{ duration: 0.6, delay: 0.1 }} 
+            className="mb-10 text-sm"
+          >
+            {isLogin 
+              ? "Start your academic journey and connect with peers today." 
+              : "Welcome back! Stay in the loop with your campus community."}
+          </motion.p>
+          
+          <button 
+            type="button"
+            onClick={() => setIsLogin(!isLogin)}
+            className="px-14 py-3 border-2 border-white rounded-full font-bold text-xs hover:bg-white hover:text-indigo-500 transition-all cursor-pointer active:scale-95"
+          >
+            {isLogin ? "Register" : "Login"}
+          </button>
+        </motion.div>
+
+        {/* ================= نموذج تسجيل الدخول (اليسار) ================= */}
+        <div className="w-1/2 h-full flex flex-col items-center justify-center p-12">
+          <h2 className="text-3xl font-bold text-slate-800 mb-8">Login to Twassel</h2>
+          <div className="w-full space-y-4">
+            
+            {/* حقل الإيميل */}
+            <div className="relative group">
+              <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+              <input type="email" placeholder="Email" className="w-full p-4 pl-12 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 transition-all text-sm" />
+            </div>
+
+            {/* حقل كلمة المرور */}
+            <div className="relative group">
+              <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+              <input type="password" placeholder="Password" className="w-full p-4 pl-12 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 transition-all text-sm" />
+            </div>
+
+            <button 
+              type="button" 
+              onClick={(e) => {
+                e.preventDefault();
+                alert("مرحباً بك مجدداً في Twassel! 🚀");
+              }}
+              className="w-full bg-indigo-500 text-white py-4 rounded-2xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-600 transition-all active:scale-95 cursor-pointer"
+            >
+              Login
+            </button>
+          </div>
+        </div>
+
+        {/* ================= نموذج إنشاء الحساب (اليمين) ================= */}
+        <div className="w-1/2 h-full flex flex-col items-center justify-center p-12">
+          <h2 className="text-3xl font-bold text-slate-800 mb-6">Create Account</h2>
+          <div className="w-full space-y-3">
+            
+            {/* حقل الاسم */}
+            <div className="relative group">
+              <FiUser className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+              <input type="text" placeholder="Username" className="w-full p-3 pl-11 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 transition-all text-sm" />
+            </div>
+
+            {/* حقل الإيميل الجامعي */}
+            <div className="relative group">
+              <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+              <input type="email" placeholder="University Email" className="w-full p-3 pl-11 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 transition-all text-sm" />
+            </div>
+
+            {/* حقل كلمة المرور */}
+            <div className="relative group">
+              <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+              <input type="password" placeholder="Password" className="w-full p-3 pl-11 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 transition-all text-sm" />
+            </div>
+            
+            {/* حقل رفع الهوية */}
+            <label className="flex items-center justify-center gap-3 w-full p-3 border-2 border-dashed border-indigo-200 rounded-xl cursor-pointer hover:bg-indigo-50 transition-all">
+              <FiUploadCloud className="text-indigo-500" size={20} />
+              <span className="text-xs font-bold text-indigo-500">Upload ID Card</span>
+              <input type="file" className="hidden" />
+            </label>
+
+            <button 
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                alert("تم إنشاء حسابك الجامعي بنجاح! 🎉");
+              }}
+              className="w-full bg-indigo-500 text-white py-3 mt-2 rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-600 transition-all active:scale-95 cursor-pointer"
+            >
+              Register
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  );
+}

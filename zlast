@@ -1,0 +1,403 @@
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  FiHome, FiCompass, FiUser, FiSearch, FiSend, 
+  FiClock, FiLogOut, FiShare2, FiHeart, FiPlus, 
+  FiArrowRight, FiTrendingUp, FiZap, FiX, FiCheckCircle, 
+  FiFileText,FiSettings, FiLayers // <--- تأكد من إضافة هذه هنا
+} from "react-icons/fi";
+
+// --- 1. مكون نافذة تقديم طلب الانضمام (للطالب) ---
+const JoinRequestModal = ({ groupName, isOpen, onClose }) => {
+  const [answer, setAnswer] = useState("");
+  const [isSent, setIsSent] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setIsSent(true);
+    setTimeout(() => {
+      setIsSent(false);
+      onClose();
+    }, 2000);
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/10 backdrop-blur-md">
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white w-full max-w-lg rounded-4xl shadow-2xl border border-slate-100 overflow-hidden relative">
+            {isSent && (
+              <div className="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center text-center p-6">
+                <FiCheckCircle size={40} className="text-emerald-500 mb-4" />
+                <h3 className="text-xl font-bold text-slate-800">Request Sent!</h3>
+              </div>
+            )}
+            <div className="p-8 border-b border-slate-50 flex justify-between items-center">
+              <h2 className="text-xl font-bold font-sans tracking-tight text-slate-800">Join {groupName}</h2>
+              <button onClick={onClose} className="text-slate-400"><FiX size={20} /></button>
+            </div>
+            <div className="p-8 space-y-6">
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                  • No off-topic discussions. <br/> • Respect all members.
+                </p>
+              </div>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <p className="text-sm font-bold text-slate-700">Why do you want to join this circle?</p>
+                <textarea required value={answer} onChange={(e) => setAnswer(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm outline-none focus:border-indigo-500 h-28 resize-none" />
+                <button type="submit" className="w-full py-4 bg-indigo-500 text-white rounded-2xl text-xs font-bold shadow-lg hover:bg-indigo-600 transition-all">
+                  Submit Request
+                </button>
+              </form>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+// --- 2. مكون نافذة تجهيز الشروط والأسئلة (لمسؤول الفوج) ---
+const LeaderSetupModal = ({ isOpen, onClose }) => {
+  const [setup, setSetup] = useState({ name: "", rules: "", question: "" });
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+            className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-slate-100">
+            
+            <div className="p-5 bg-indigo-600 text-white flex justify-between items-center">
+               <h2 className="text-sm font-bold">Create New Study Circle</h2>
+               <button onClick={onClose}><FiX size={18}/></button>
+            </div>
+
+            <form className="p-6 space-y-4">
+              {/* 🛑 خانة اسم المجموعة */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Group Name</label>
+                <input 
+                  required 
+                  placeholder="e.g. Advanced Java Hub" 
+                  value={setup.name} 
+                  onChange={(e) => setSetup({...setup, name: e.target.value})}
+                  className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-indigo-500 transition-all" 
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Join Rules</label>
+                <textarea 
+                  placeholder="What are the conditions?" 
+                  value={setup.rules} 
+                  onChange={(e) => setSetup({...setup, rules: e.target.value})}
+                  className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm outline-none focus:border-indigo-500 h-20 resize-none" 
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Screening Question</label>
+                <textarea 
+                  placeholder="What should they answer to join?" 
+                  value={setup.question} 
+                  onChange={(e) => setSetup({...setup, question: e.target.value})}
+                  className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm outline-none focus:border-indigo-500 h-20 resize-none" 
+                />
+              </div>
+
+              <button type="submit" className="w-full py-3.5 bg-indigo-600 text-white rounded-xl text-xs font-bold uppercase shadow-lg hover:bg-indigo-700 transition-all">
+                Launch Circle
+              </button>
+            </form>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+// --- الإعدادات الأساسية للتبويبات ---
+const TABS = [
+  { id: "hub", label: "Hub", icon: FiHome },
+  { id: "explore", label: "Explore", icon: FiCompass },
+  { id: "profile", label: "Profile", icon: FiUser },
+];
+// --- مكون نافذة الإعدادات (CircleSettingsModal) ---
+const CircleSettingsModal = ({ isOpen, onClose, groupData }) => {
+  const [settings, setSettings] = useState({
+    name: groupData?.name || "",
+    rules: "1. Respect others\n2. Share notes",
+    question: "What is your major?",
+    isPrivate: true
+  });
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+        className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
+        
+        <div className="p-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+          <h2 className="font-bold text-slate-800 text-sm flex items-center gap-2">
+            <FiSettings className="text-indigo-600" /> Circle Settings
+          </h2>
+          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full"><FiX /></button>
+        </div>
+
+        <form className="p-6 space-y-4">
+          <div>
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Group Name</label>
+            <input value={settings.name} onChange={(e) => setSettings({...settings, name: e.target.value})}
+              className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-indigo-500" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Rules</label>
+              <textarea value={settings.rules} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-xs h-24 resize-none outline-none focus:border-indigo-500" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Question</label>
+              <textarea value={settings.question} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-xs h-24 resize-none outline-none focus:border-indigo-500" />
+            </div>
+          </div>
+
+          <div className="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100 flex items-center justify-between">
+            <span className="text-[10px] font-bold text-indigo-700 uppercase">Manual Approval</span>
+            <div className="w-8 h-4 bg-indigo-600 rounded-full relative"><div className="absolute right-1 top-1 w-2 h-2 bg-white rounded-full"/></div>
+          </div>
+
+          <button type="button" className="w-full py-3 bg-indigo-600 text-white rounded-xl text-xs font-bold uppercase shadow-lg hover:bg-indigo-700">
+            Save Settings
+          </button>
+          
+          <button type="button" className="w-full text-rose-500 text-[9px] font-black uppercase tracking-widest hover:underline text-center">
+            Delete Circle
+          </button>
+        </form>
+      </motion.div>
+    </div>
+  );
+};
+
+// --- 3. المكون الرئيسي للصفحة ---
+export default function StudentHubPage() {
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState("hub");
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [selectedGroupForSettings, setSelectedGroupForSettings] = useState(null);
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [showSetupModal, setShowSetupModal] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState("");
+
+  const [posts] = useState([
+    { id: 1, user: "Sami.R", text: "Does anyone have the summary for Chapter 3?", time: "2h ago", likes: 12, liked: false },
+    { id: 2, user: "Amira.K", text: "The library is open until 10 PM today.", time: "5h ago", likes: 8, liked: true },
+  ]);
+
+  const handleOpenJoinModal = (name) => {
+    setSelectedGroup(name);
+    setShowJoinModal(true);
+  };
+
+  const handleOpenSettingsModal = (groupData) => {
+    setSelectedGroupForSettings(groupData);
+    setShowSettingsModal(true);
+  };
+
+  const renderHub = () => (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-2xl mx-auto space-y-6">
+      <div className="bg-white p-5 rounded-4xl border border-slate-100 shadow-sm">
+        <input placeholder="Share something with campus..." className="w-full bg-slate-50 rounded-2xl px-5 py-3 text-sm outline-none" />
+      </div>
+      {posts.map((post) => (
+        <div key={post.id} className="bg-white p-6 rounded-4xl border border-slate-100 shadow-sm space-y-4">
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-bold text-slate-800">@{post.user}</span>
+            <span className="text-[10px] text-slate-400 font-bold">{post.time}</span>
+          </div>
+          <p className="text-slate-600 text-sm font-medium leading-relaxed">{post.text}</p>
+          <div className="flex items-center gap-2 text-rose-500 text-xs font-bold cursor-pointer transition-transform active:scale-90">
+            <FiHeart fill={post.liked ? "currentColor" : "none"} /> {post.likes} Likes
+          </div>
+        </div>
+      ))}
+    </motion.div>
+  );
+
+  const renderExplore = () => (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-12">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <section className="space-y-4">
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 px-2"><FiTrendingUp className="text-rose-500" /> Trending Circles</h3>
+          {["Algorithms L2", "Applied Physics"].map((group) => (
+            <div key={group} onClick={() => handleOpenJoinModal(group)}
+              className="bg-white p-6 rounded-4xl border border-slate-100 shadow-sm flex justify-between items-center cursor-pointer hover:border-indigo-500 transition-all group">
+              <span className="font-bold text-slate-800">{group}</span>
+              <FiArrowRight className="text-slate-300 group-hover:text-indigo-500 transition-all" />
+            </div>
+          ))}
+        </section>
+        <section className="space-y-4">
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 px-2"><FiZap className="text-amber-500" /> New Arrivals</h3>
+          {["UI/UX Basics", "Organic Chemistry"].map((group) => (
+            <div key={group} onClick={() => handleOpenJoinModal(group)}
+              className="bg-white p-6 rounded-4xl border border-slate-100 shadow-sm flex justify-between items-center cursor-pointer hover:border-indigo-500 transition-all group">
+              <span className="font-bold text-slate-800">{group}</span>
+              <FiArrowRight className="text-slate-300 group-hover:text-indigo-500 transition-all" />
+            </div>
+          ))}
+        </section>
+      </div>
+    </motion.div>
+  );
+
+const renderProfile = () => {
+    // محاكاة البيانات: المجموعة الأولى أنت فيها مسؤول، والثانية أنت فيها عضو
+    const myGroups = [
+      { id: 1, name: "Algorithms L2", role: "Leader", members: 12, color: "bg-indigo-500" },
+      { id: 2, name: "Applied Physics", role: "Member", members: 45, color: "bg-slate-400" },
+    ];
+
+    return (
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        className="max-w-4xl mx-auto space-y-4"
+      >
+        {/* 🟦 إطار البروفايل الموحد (Compact) */}
+        <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="flex justify-between items-center px-6 py-3 border-b border-slate-50 bg-slate-50/30">
+            <div className="flex items-center gap-2">
+              <FiUser size={14} className="text-indigo-500" />
+              <h2 className="font-bold text-slate-800 text-[10px] uppercase tracking-wider">Student Profile</h2>
+            </div>
+            {/* زر إنشاء مجموعة جديدة */}
+            <button 
+              onClick={() => setShowSetupModal(true)}
+              className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-sm flex items-center gap-2 hover:bg-indigo-700 transition-all"
+            >
+              <FiPlus /> New Circle
+            </button>
+          </div>
+
+          <div className="p-5 flex items-center gap-5">
+            <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center text-slate-300 border border-white shadow-inner">
+              <FiUser size={28} />
+            </div>
+            <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-bold text-slate-800 tracking-tight leading-tight">Yassine Benali</h3>
+                <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5 italic">Verified Account</p>
+              </div>
+              <div className="flex gap-2">
+                <div className="bg-white px-3 py-1.5 rounded-xl border border-slate-100 flex flex-col items-center min-w-[85px]">
+                  <span className="text-[7px] font-black text-slate-400 uppercase leading-none mb-1">Matricule</span>
+                  <span className="text-[10px] font-bold text-slate-600">2026-TWS-01</span>
+                </div>
+                <div className="bg-white px-3 py-1.5 rounded-xl border border-slate-100 flex flex-col items-center min-w-[85px]">
+                  <span className="text-[7px] font-black text-slate-400 uppercase leading-none mb-1">Faculty</span>
+                  <span className="text-[10px] font-bold text-slate-600">NTIC - L2</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 📚 قائمة مجموعاتي */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 px-2 mt-6">
+            <FiLayers size={14} className="text-slate-400" />
+            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">My Active Circles</h3>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3">
+            {myGroups.map((group) => (
+              <div 
+                key={group.id} 
+                className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between group hover:border-indigo-100 transition-all"
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`w-10 h-10 ${group.color} rounded-xl flex items-center justify-center text-white shadow-sm`}>
+                    <FiLayers size={16} />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-800">{group.name}</h4>
+                    <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-md ${group.role === 'Leader' ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-500'}`}>
+                      {group.role}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {/* ⚙️ زر الإعدادات يظهر فقط إذا كان المستخدم "Leader" */}
+                  {/* الزر الجديد والمعدل */}
+                  {group.role === "Leader" && (
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation(); // 1. يمنع المتصفح من فتح "غرفة الشات" بالخطأ عند الضغط على الترس
+                        setSelectedGroupForSettings(group); // 2. يخبر الذاكرة أننا اخترنا هذه المجموعة
+                        setShowSettingsModal(true); // 3. يعطي أمر "فتح" النافذة
+                      }}
+                      className="p-2.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
+                    >
+                      <FiSettings size={18} />
+                    </button>
+                  )}
+                
+
+                  {/* زر دخول المجموعة */}
+                  <button 
+                    onClick={() => router.push(`/hub/chat/${group.id}`)}
+                    className="flex items-center gap-2 bg-slate-50 text-slate-500 px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-indigo-500 hover:text-white transition-all shadow-sm"
+                  >
+                    Enter <FiArrowRight size={12} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+    );
+  };
+
+ return (
+    <div className="min-h-screen bg-slate-50 pb-20 font-sans tracking-tight">
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div className="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab("hub")}>
+            <div className="bg-indigo-500 p-2 rounded-xl text-white shadow-lg shadow-indigo-100"><FiShare2 size={20}/></div>
+            <span className="text-xl font-bold text-slate-800">Twassel.</span>
+          </div>
+          <button onClick={() => router.push("/auth")} className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-red-500 transition-colors">Logout</button>
+        </div>
+        <div className="max-w-5xl mx-auto px-6 flex gap-10">
+          {[ { id: "hub", label: "Hub", icon: FiHome }, { id: "explore", label: "Explore", icon: FiCompass }, { id: "profile", label: "Profile", icon: FiUser } ].map((tab) => (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 py-4 text-xs font-bold uppercase tracking-widest border-b-2 transition-all ${activeTab === tab.id ? "border-indigo-500 text-indigo-600" : "border-transparent text-slate-400"}`}>
+              <tab.icon size={16} /> {tab.label}
+            </button>
+          ))}
+        </div>
+      </header>
+
+      <main className="max-w-5xl mx-auto p-6 md:p-10">
+        <AnimatePresence mode="wait">
+          {activeTab === "hub" && renderHub()}
+          {activeTab === "explore" && renderExplore()}
+          {activeTab === "profile" && renderProfile()}
+        </AnimatePresence>
+      </main>
+
+      <JoinRequestModal isOpen={showJoinModal} onClose={() => setShowJoinModal(false)} groupName={selectedGroup} />
+      <LeaderSetupModal isOpen={showSetupModal} onClose={() => setShowSetupModal(false)} />
+    </div>
+  );
+}
