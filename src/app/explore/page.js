@@ -1,9 +1,10 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiSearch, FiTrendingUp, FiUsers, FiCheck, FiX,
-  FiCompass, FiStar, FiLock
+  FiCompass, FiStar, FiLock, FiMessageSquare
 } from "react-icons/fi";
 import Sidebar from "@/components/Sidebar";
 
@@ -263,6 +264,7 @@ function JoinModal({ group, onClose, onJoin }) {
 }
 
 function GroupCard({ group, onJoin }) {
+  const router = useRouter();
   const pct = Math.round((group.members / group.maxMembers) * 100);
   const full = pct >= 90;
 
@@ -320,9 +322,18 @@ function GroupCard({ group, onJoin }) {
         </div>
 
         {group.joined ? (
-          <div className="flex items-center justify-center gap-2 py-2.5 rounded-2xl bg-green-50 text-green-600 text-xs font-bold border border-green-100">
-            <FiCheck size={13} />
-            Joined
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-center gap-2 py-2 rounded-2xl bg-green-50 text-green-600 text-xs font-bold border border-green-100">
+              <FiCheck size={13} />
+              Joined
+            </div>
+            <button
+              onClick={() => router.push(`/hub/chat/${group.id}`)}
+              className={`w-full py-2.5 rounded-2xl text-xs font-bold transition-all cursor-pointer active:scale-95 bg-gradient-to-r ${group.gradient} text-white shadow-sm hover:opacity-90 flex items-center justify-center gap-1.5`}
+            >
+              <FiMessageSquare size={13} />
+              Open Chat
+            </button>
           </div>
         ) : (
           <button
